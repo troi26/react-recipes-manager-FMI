@@ -1,58 +1,56 @@
 import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
 import './App.css';
+import {Register} from "./features/account/Register";
+import NavigationMenu from "./features/navigation/Menu";
+import {Login} from "./features/account/Login";
+import {Provider} from "react-redux";
+import store from "./app/store";
+import {BrowserRouter} from "react-router-dom";
+import Route from "react-router-dom/es/Route";
+import Switch from "react-router-dom/es/Switch";
+import {createBrowserHistory} from "history";
+import {FilteredRecipes} from "./features/recipesFilter/FilteredRecipes";
+import {RecipesPreview} from "./features/recipe/RecipesPreview";
+import {AccountsPreview} from "./features/account/AccountsPreview";
+import {CreateRecipe} from "./features/recipe/CreateRecipe";
+import {RecipePreview} from "./features/recipe/RecipePreview";
 
+export const history = createBrowserHistory();
+
+history.push("/login");
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
-  );
+    return (
+        <Provider store={store}>
+            <BrowserRouter>
+                <NavigationMenu/>
+                <div className="App">
+                    <Switch>
+                        <Route path="/recipePreview" >
+                            <RecipePreview />
+                        </Route>
+                        <Route exact path="/login" >
+                            <Login/>
+                        </Route>
+                        <Route exact path="/register" >
+                            <Register />
+                        </Route>
+                        <Route path="/addRecipe" >
+                            <CreateRecipe />
+                        </Route>
+                        <Route exact path="/filteredRecipes" >
+                            <FilteredRecipes />
+                        </Route>
+                        <Route exact path="/fullRecipesList" >
+                            <RecipesPreview />
+                        </Route>
+                        <Route exact path="/fullAccountsList" >
+                            <AccountsPreview />
+                        </Route>
+                    </Switch>
+                </div>
+            </BrowserRouter>
+        </Provider>
+);
 }
 
 export default App;

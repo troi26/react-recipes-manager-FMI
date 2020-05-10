@@ -1,8 +1,17 @@
 import { configureStore } from '@reduxjs/toolkit';
-import counterReducer from '../features/counter/counterSlice';
+import {accountsSlice} from "../features/account/accountSlice";
+import {recipeSlice} from "../features/recipe/recipeSlice";
+
+import {compose} from "redux";
+
+
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
+    compose;
 
 export default configureStore({
   reducer: {
-    counter: counterReducer,
+    accounts: accountsSlice,
+    recipes: recipeSlice,
   },
+  enhancers: composeEnhancers,
 });
