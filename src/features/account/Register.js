@@ -1,8 +1,11 @@
-import {Field, Form, Formik, FormikProps, withFormik} from "formik";
-import {Button, ButtonGroup, Form as FormSemantic, GridColumn, GridRow, Icon, Image, TextArea} from 'semantic-ui-react';
+import {Field, Form, Formik, FormikProps} from "formik";
+import {Button, Form as FormSemantic, Image, TextArea} from 'semantic-ui-react';
 import React from "react";
 import {genders, roles, userConstraints} from "./model/User";
 import 'semantic-ui-css/semantic.min.css';
+import {useDispatch, useSelector} from "react-redux";
+import {registerUser, selectUsers, userEdit} from "./accountSlice";
+import { useParams } from "react-router";
 
 function validateUsername(value) {
     let error;
@@ -62,6 +65,7 @@ const MyDescriptionInput = ({field, form, ...props}) => {
             control={TextArea}
             label={"About"}
             placeholder={"Tell us about you..."}
+            value={field.value}
             onChange={e => form.setFieldValue('about', e.target.value)}
         />
     );
@@ -112,60 +116,115 @@ const MyPasswordInput = ({field, form, ...props}) => {
     )
 };
 
-export const Register = () => (
-    <div
-        style={{
-            margin: '0em 1em',
-        }}
-    >
-        <h1>Register</h1>
-        <Formik
-            initialValues={{
-                name: "",
-                role: roles.USER,
-                gender: genders.MALE,
-                avatarPath: "",
-                username: "",
-                password: "",
-                about: "",
-            }}
-            onSubmit={(values, actions) => {
-                setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2));
-                    actions.setSubmitting(false);
-                }, 1000);
-            }}
-        >{(props: FormikProps<any>) => {
-            console.log(props);
-            return (
-                <Form style={{
-                    width: '50%',
-                    margin: 'auto',
-                }}>
-                    <FormSemantic>
-                        <FormSemantic.Group grouped>
-                            {props.values.avatarPath.length > 0 &&
-                            <Image height={180} src={props.values.avatarPath} />
-                            }
-                            {(props.values.avatarPath.length === 0 && props.values.gender === genders.MALE) &&
-                            <Image height={180} src={"avatars/default-male.png"} />
-                            }
-                            {(props.values.avatarPath.length === 0 && props.values.gender === genders.FEMALE) &&
-                            <Image height={180} src={"avatars/default-female.png"} />
-                            }
-                            <Field name={"avatarPath"} component={MyAvatarInput} />
-                        </FormSemantic.Group>
-                        <Field name={"name"} component={MyNameInput}/>
-                        <Field name={"username"} component={MyUsernameInput} validate={validateUsername}/>
-                        <Field name={"password"} component={MyPasswordInput} validate={validatePassword}/>
-                        <Field name={"role"} component={MyRoleInput} />
-                        <Field name={"gender"} component={MyGenderInput} />
-                        <Field name={"about"} component={MyDescriptionInput} />
-                        <Button type={"submit"} color={"blue"}>Register</Button>
-                    </FormSemantic>
-                </Form>
-            )
-        }}
-        </Formik>
-    </div>
-);
+export function Register () {
+
+    let {userId} = useParams();
+    const users = useSelector(selectUsers);
+    const dispatch = useDispatch();
+
+    if (userId) {
+        const user = users.find(user => user.id === userId);
+        return (
+            <div
+                style={{
+                    margin: '0em 1em',
+                }}
+            >
+                <h1>Edit user</h1>
+                <Formik
+                    initialValues={user}
+                    onSubmit={(values, actions) => {
+                        dispatch(userEdit(values));
+                    }}
+                >{(props: FormikProps<any>) => {
+                    console.log(props);
+                    return (
+                        <Form style={{
+                            width: '50%',
+                            margin: 'auto',
+                        }}>
+                            <FormSemantic>
+                                <FormSemantic.Group grouped>
+                                    {props.values.avatarPath.length > 0 &&
+                                    <Image height={180} src={props.values.avatarPath} />
+                                    }
+                                    {(props.values.avatarPath.length === 0 && props.values.gender === genders.MALE) &&
+                                    <Image height={180} src={"/avatars/default-male.png"} />
+                                    }
+                                    {(props.values.avatarPath.length === 0 && props.values.gender === genders.FEMALE) &&
+                                    <Image height={180} src={"/avatars/default-female.png"} />
+                                    }
+                                    <Field name={"avatarPath"} component={MyAvatarInput} />
+                                </FormSemantic.Group>
+                                <Field name={"name"} component={MyNameInput}/>
+                                <Field name={"username"} component={MyUsernameInput} validate={validateUsername}/>
+                                <Field name={"password"} component={MyPasswordInput} validate={validatePassword}/>
+                                <Field name={"role"} component={MyRoleInput} />
+                                <Field name={"gender"} component={MyGenderInput} />
+                                <Field name={"about"} component={MyDescriptionInput} />
+                                <Button type={"submit"} color={"blue"}>Save</Button>
+                            </FormSemantic>
+                        </Form>
+                    )
+                }}
+                </Formik>
+            </div>
+        );
+    } else {
+        return (
+            <div
+                style={{
+                    margin: '0em 1em',
+                }}
+            >
+                <h1>Register</h1>
+                <Formik
+                    initialValues={{
+                        id: null,
+                        name: "",
+                        role: roles.USER,
+                        gender: genders.MALE,
+                        avatarPath: "",
+                        username: "",
+                        password: "",
+                        about: "",
+                    }}
+                    onSubmit={(values, actions) => {
+                        dispatch(registerUser(values));
+                    }}
+                >{(props: FormikProps<any>) => {
+                    console.log(props);
+                    return (
+                        <Form style={{
+                            width: '50%',
+                            margin: 'auto',
+                        }}>
+                            <FormSemantic>
+                                <FormSemantic.Group grouped>
+                                    {props.values.avatarPath.length > 0 &&
+                                    <Image height={180} src={props.values.avatarPath} />
+                                    }
+                                    {(props.values.avatarPath.length === 0 && props.values.gender === genders.MALE) &&
+                                    <Image height={180} src={"avatars/default-male.png"} />
+                                    }
+                                    {(props.values.avatarPath.length === 0 && props.values.gender === genders.FEMALE) &&
+                                    <Image height={180} src={"avatars/default-female.png"} />
+                                    }
+                                    <Field name={"avatarPath"} component={MyAvatarInput} />
+                                </FormSemantic.Group>
+                                <Field name={"name"} component={MyNameInput}/>
+                                <Field name={"username"} component={MyUsernameInput} validate={validateUsername}/>
+                                <Field name={"password"} component={MyPasswordInput} validate={validatePassword}/>
+                                <Field name={"role"} component={MyRoleInput} />
+                                <Field name={"gender"} component={MyGenderInput} />
+                                <Field name={"about"} component={MyDescriptionInput} />
+                                <Button type={"submit"} color={"blue"}>Register</Button>
+                            </FormSemantic>
+                        </Form>
+                    )
+                }}
+                </Formik>
+            </div>
+        );
+    }
+}
