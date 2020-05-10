@@ -17,6 +17,9 @@ export const recipeConstraints = {
    MAX_DETAILED_DESCRIPTION_LENGTH: 2048,
 };
 
+export const findAllKeywords = (recipes) => {
+   return [].concat.apply([], recipes.map(recipe => recipe.keywords));
+}
 
 export class Recipe {
    constructor(other) {

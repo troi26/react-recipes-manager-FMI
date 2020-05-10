@@ -1,11 +1,7 @@
-import {Field, Form, Formik, FormikProps, withFormik} from "formik";
+import {Field, Form, Formik, FormikProps} from "formik";
 import {
     Button,
-    ButtonGroup,
     Form as FormSemantic,
-    GridColumn,
-    GridRow,
-    Icon,
     Image,
     Table, TableHeaderCell,
     TextArea
@@ -13,6 +9,10 @@ import {
 import React, {useState} from "react";
 import 'semantic-ui-css/semantic.min.css';
 import {recipeConstraints} from "./model/Recipe";
+import { useParams } from "react-router";
+import {useDispatch, useSelector} from "react-redux";
+import {recipeEdit, selectRecipes, shareRecipe} from "./recipeSlice";
+import {selectLogged} from "../account/accountSlice";
 
 function validateName(value) {
     let error;
@@ -111,7 +111,7 @@ const MyDetailedDescriptionInput = ({field, form, ...props}) => {
 
 const MyProductsInput = ({field, form, ...props}) => {
     return (
-        <TableView title={"Products"} items={field.value} onSubmitClick={(value) => {
+        <TableView title={"Products"} items={field.value} fieldName={"Product"} onSubmitClick={(value) => {
             form.setFieldValue("products", field.value.concat(value));
         }} onRemoveClick={(removeIdx) => {
             form.setFieldValue("products", field.value.filter((prod, idx) => idx !== removeIdx));
@@ -131,7 +131,7 @@ function TableView (props) {
                 <Table.Header>
                     <Table.Row>
                         <TableHeaderCell>Number</TableHeaderCell>
-                        <Table.HeaderCell>Name</Table.HeaderCell>
+                        <Table.HeaderCell>{props.fieldName}</Table.HeaderCell>
                         <Table.HeaderCell>Option</Table.HeaderCell>
                     </Table.Row>
                 </Table.Header>
@@ -209,7 +209,7 @@ function TableView (props) {
 
 const MyKeywordsInput = ({field, form, ...props}) => {
     return (
-        <TableView title={"Keywords"} items={field.value} onSubmitClick={(value) => {
+        <TableView title={"Keywords"} items={field.value} fieldName={"Word"} onSubmitClick={(value) => {
             form.setFieldValue("keywords", field.value.concat(value));
         }} onRemoveClick={(removeIdx) => {
             form.setFieldValue("keywords", field.value.filter((prod, idx) => idx !== removeIdx));
@@ -217,57 +217,114 @@ const MyKeywordsInput = ({field, form, ...props}) => {
     );
 }
 
-export const CreateRecipe = () => (
-    <div
-        style={{
-            margin: '0em 1em',
-        }}
-    >
-        <h1>Register</h1>
-        <Formik
-            initialValues={{
-                name: "",
-                shortDescription: "",
-                cookingTime: 0,
-                products: [],
-                photoPath: "",
-                detailedDescription: "",
-                keywords: [],
-            }}
-            onSubmit={(values, actions) => {
-                setTimeout(() => {
-                    alert(JSON.stringify(values, null, 2));
-                    actions.setSubmitting(false);
-                }, 1000);
-            }}
-        >{(props: FormikProps<any>) => {
-            console.log(props);
-            return (
-                <Form style={{
-                    width: '50%',
-                    margin: 'auto',
-                }}>
-                    <FormSemantic>
-                        <FormSemantic.Group grouped>
-                            {props.values.photoPath.length > 0 &&
-                            <Image height={180} src={props.values.photoPath} />
-                            }
-                            {(props.values.photoPath.length === 0) &&
-                            <Image height={180} src={"https://us.123rf.com/450wm/pavelstasevich/pavelstasevich1811/pavelstasevich181101028/112815904-stock-vector-no-image-available-icon-flat-vector-illustration.jpg?ver=6"} />
-                            }
-                            <Field name={"photoPath"} component={MyPhotoInput} />
-                        </FormSemantic.Group>
-                        <Field name={"name"} component={MyNameInput}/>
-                        <Field name={"cookingTime"} component={MyTimeInput} />
-                        <Field name={"shortDescription"} component={MyShortDescriptionInput} validate={validateShortDescription}/>
-                        <Field name={"detailedDescription"} component={MyDetailedDescriptionInput} validate={validateDetailedDescription}/>
-                        <Field name={"products"} component={MyProductsInput} />
-                        <Field name={"keywords"} component={MyKeywordsInput} />
-                        <Button type={"submit"} color={"blue"}>Register</Button>
-                    </FormSemantic>
-                </Form>
-            )
-        }}
-        </Formik>
-    </div>
-);
+export const CreateRecipe = () => {
+    const {recipeId} = useParams();
+    const recipes = useSelector(selectRecipes);
+
+    const dispatch = useDispatch();
+    const logged = useSelector(selectLogged);
+
+    if (recipeId) {
+        const recipe = recipes.find(recipe => recipe.id === recipeId);
+
+        return (
+            <div
+                style={{
+                    margin: '0em 1em',
+                }}
+            >
+                <h1>Edit recipe</h1>
+                <Formik
+                    initialValues={recipe}
+                    onSubmit={(values, actions) => {
+                        dispatch(recipeEdit(values));
+                    }}
+                >{(props: FormikProps<any>) => {
+                    console.log(props);
+                    return (
+                        <Form style={{
+                            width: '50%',
+                            margin: 'auto',
+                        }}>
+                            <FormSemantic>
+                                <FormSemantic.Group grouped>
+                                    {props.values.photoPath.length > 0 &&
+                                    <Image height={180} src={props.values.photoPath} />
+                                    }
+                                    {(props.values.photoPath.length === 0) &&
+                                    <Image height={180} src={"https://us.123rf.com/450wm/pavelstasevich/pavelstasevich1811/pavelstasevich181101028/112815904-stock-vector-no-image-available-icon-flat-vector-illustration.jpg?ver=6"} />
+                                    }
+                                    <Field name={"photoPath"} component={MyPhotoInput} />
+                                </FormSemantic.Group>
+                                <Field name={"name"} component={MyNameInput} validation={validateName}/>
+                                <Field name={"cookingTime"} component={MyTimeInput} />
+                                <Field name={"shortDescription"} component={MyShortDescriptionInput} validate={validateShortDescription}/>
+                                <Field name={"detailedDescription"} component={MyDetailedDescriptionInput} validate={validateDetailedDescription}/>
+                                <Field name={"products"} component={MyProductsInput} />
+                                <Field name={"keywords"} component={MyKeywordsInput} />
+                                <Button type={"submit"} color={"blue"}>Register</Button>
+                            </FormSemantic>
+                        </Form>
+                    )
+                }}
+                </Formik>
+            </div>
+        );
+    } else {
+
+        return (
+            <div
+                style={{
+                    margin: '0em 1em',
+                }}
+            >
+                <h1>Share recipe</h1>
+                <Formik
+                    initialValues={{
+                        name: "",
+                        shortDescription: "",
+                        cookingTime: 0,
+                        products: [],
+                        photoPath: "",
+                        detailedDescription: "",
+                        keywords: [],
+                        authorId: logged.id,
+                    }}
+                    onSubmit={(values, actions) => {
+                        dispatch(shareRecipe(values));
+                    }}
+                >{(props: FormikProps<any>) => {
+                    console.log(props);
+                    return (
+                        <Form style={{
+                            width: '50%',
+                            margin: 'auto',
+                        }}>
+                            <FormSemantic>
+                                <FormSemantic.Group grouped>
+                                    {props.values.photoPath.length > 0 &&
+                                    <Image height={180} src={props.values.photoPath} />
+                                    }
+                                    {(props.values.photoPath.length === 0) &&
+                                    <Image height={180} src={"https://us.123rf.com/450wm/pavelstasevich/pavelstasevich1811/pavelstasevich181101028/112815904-stock-vector-no-image-available-icon-flat-vector-illustration.jpg?ver=6"} />
+                                    }
+                                    <Field name={"photoPath"} component={MyPhotoInput} />
+                                </FormSemantic.Group>
+                                <Field name={"name"} component={MyNameInput} validation={validateName}/>
+                                <Field name={"cookingTime"} component={MyTimeInput} />
+                                <Field name={"shortDescription"} component={MyShortDescriptionInput} validate={validateShortDescription}/>
+                                <Field name={"detailedDescription"} component={MyDetailedDescriptionInput} validate={validateDetailedDescription}/>
+                                <Field name={"products"} component={MyProductsInput} />
+                                <Field name={"keywords"} component={MyKeywordsInput} />
+                                <Button type={"submit"} color={"blue"}>Register</Button>
+                            </FormSemantic>
+                        </Form>
+                    )
+                }}
+                </Formik>
+            </div>
+        );
+    }
+
+
+}
