@@ -27,7 +27,6 @@ export const AccountsPreview = (props) => {
                                 </Card.Description>
                             </Card.Content>
                             <Card.Content extra>
-                                <Button primary>View</Button>
                                 <Button color={"red"}>Delete</Button>
                                 <Button color={"green"}>Edit</Button>
                             </Card.Content>
