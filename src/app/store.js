@@ -1,17 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
-import {accountsSlice} from "../features/account/accountSlice";
-import {recipeSlice} from "../features/recipe/recipeSlice";
+import accountsReducer from "../features/account/accountSlice";
+import recipeReducer from "../features/recipe/recipeSlice";
 
-import {compose} from "redux";
-
-
-const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ ||
-    compose;
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__;
 
 export default configureStore({
   reducer: {
-    accounts: accountsSlice,
-    recipes: recipeSlice,
+    accounts: accountsReducer,
+    recipes: recipeReducer,
   },
   enhancers: composeEnhancers,
 });
