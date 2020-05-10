@@ -5,6 +5,9 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: url("https://cdn.hipwallpaper.com/i/91/74/kwU27u.jpg") !important;
+  -moz-background-image: url("https://cdn.hipwallpaper.com/i/91/74/kwU27u.jpg") !important;
+  -webkit-background-image: url("https://cdn.hipwallpaper.com/i/91/74/kwU27u.jpg") !important;
 }
 
 code {
