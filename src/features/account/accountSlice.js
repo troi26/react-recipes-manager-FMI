@@ -25,7 +25,7 @@ export const accountsSlice = createSlice({
     },
     registerUser: (state, details) => {
       console.log(state.users);
-      details.payload.id = `user_${state.users.length.toString(19)}`;
+      details.payload.id = `user_${state.registered.toString(19)}`;
       details.payload.status = accountStatuses.ACTIVE;
       details.payload.registrationDate = moment().toISOString();
       details.payload.modificationDate = moment().toISOString();
@@ -51,16 +51,25 @@ export const accountsSlice = createSlice({
 
       state.users = state.users.filter(account => account.id !== details.payload.id).concat([details.payload]);
 
-      storage.set("Users", {
-        users: state.users,
-        logged: state.logged,
-        registered: state.registered,
-      })
+      if (state.logged.id === details.payload.id) {
+        state.logged = details.payload;
+        storage.set("Users", {
+          users: state.users,
+          logged: details.payload,
+          registered: state.registered,
+        })
+      } else {
+        storage.set("Users", {
+          users: state.users,
+          logged: state.logged,
+          registered: state.registered,
+        })
+      }
     },
     userRemove: (state, action) => {
 
       state.users = state.users.filter(user => user.id !== action.payload);
-      state.registered -= 1;
+      // state.registered -= 1;
 
       if (state.logged.id === action.payload) {
         state.logged = null;
