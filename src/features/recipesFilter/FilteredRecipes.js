@@ -1,6 +1,17 @@
 import React, {useState} from "react";
 import moment from "moment";
-import {Button, Card, Container, Dropdown, Grid, GridColumn, Image, Segment, Select} from "semantic-ui-react";
+import {
+    Button,
+    Card,
+    CardContent,
+    Container,
+    Dropdown,
+    Grid,
+    GridColumn,
+    Image,
+    Segment,
+    Select
+} from "semantic-ui-react";
 import {useSelector} from "react-redux";
 import {selectRecipes} from "../recipe/recipeSlice";
 import {findAllKeywords} from "../recipe/model/Recipe";
@@ -15,8 +26,9 @@ export const FilteredRecipes = () => {
 
     const filteredRecipes = recipes.filter(rec => (keywordsFilter.length === 0 || rec.keywords.some(kw =>
         keywordsFilter.includes(kw))) &&
-        (!authorFilter || rec.authorId === authorFilter))
-        .sort((rec1, rec2) => moment(rec1.shareTime).diff(moment(rec2.shareTime), 'seconds') > 0);
+        (!authorFilter || rec.authorId === authorFilter)).slice(0, 10);
+
+    filteredRecipes.sort((rec1, rec2) => moment(rec2.shareTime).diff(moment(rec1.shareTime), 'seconds'));
 
     const allKeyWords = findAllKeywords(recipes);
 
@@ -81,6 +93,12 @@ export const FilteredRecipes = () => {
                                 <Card.Description>
                                     {rec.detailedDescription.substr(0, 150) + "..."}
                                 </Card.Description>
+                                <CardContent>
+                                    <b>Author:</b> {(() => {
+                                        const author = users.find(user => user.id === rec.authorId)
+                                        return author ? author.name : "Unknown author";
+                                    })()}
+                                </CardContent>
                             </Card.Content>
                         </Card>
                     </GridColumn>
